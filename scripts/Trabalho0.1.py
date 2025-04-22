@@ -154,58 +154,24 @@ plt.show()
 
     # Para salvar o mapa como uma imagem:
     # plt.savefig('mapa_estatico.png')
-#%% Grafico de datas     ATÉ AQUI TA LINDO MAS DAQUI PRA BAIXO AINDA NÃO TENTEI
+#%%     ATÉ AQUI TA LINDO MAS DAQUI PRA BAIXO AINDA NÃO TENTEI
 
-ponto_de_interesse = 'NomeDoPontoEspecifico'  # Substitua pelo valor real da coluna de identificação do ponto
+coluna_analise = 'MAX_2019'  # Substitua pelo nome real da sua coluna de análise
 
-# Nome da coluna que identifica o ponto (ex: 'ENTIDADE')
-coluna_ponto = 'ENTIDADE'  # Substitua pelo nome real da coluna de identificação
+# Agrupe por Unidade Federativa ('UF') e por ano ('ANO')
+#grouped = df.groupby(['UF'])
 
-# Nome da coluna com a data da análise (pode precisar de formatação ou extração do ano)
-coluna_data = 'DataDaAnalise'  # Substitua pelo nome real da coluna de data
+# Calcule a máxima da coluna de análise para cada grupo
+maximos_por_estado = coluna_analise.max()
 
-# Nome da coluna com o resultado da análise (ex: 'IQA_Valor')
-coluna_resultado = 'ValorDaAnalise'  # Substitua pelo nome real da coluna de resultado
+# Calcule a mínima da coluna de análise para cada grupo
+#minimos_por_estado = grouped[coluna_analise].min()
 
-try:
-    df = pd.read_csv(dataDir, encoding='latin1')
-    print(f"Arquivo '{dataDir}' lido com sucesso. DataFrame tem {len(df)} linhas.")
+# Exiba os resultados
+print("Máximos por ano e estado:")
+print(maximos_por_estado)
 
-    # Filtrar os dados para o ponto de interesse
-    df_ponto = df[df[coluna_ponto] == ponto_de_interesse].copy()
-
-    # Verificar se a coluna de data já é o ano ou precisa de extração
-    if df_ponto[coluna_data].dtype == 'object':
-        # Tentar converter para datetime e extrair o ano
-        try:
-            df_ponto['Ano'] = pd.to_datetime(df_ponto[coluna_data]).dt.year
-        except:
-            print(f"A coluna '{coluna_data}' não pôde ser convertida para datetime. Verifique o formato.")
-            exit()
-    elif df_ponto[coluna_data].dtype in ['int64', 'float64']:
-        # Assumir que já é o ano (ou precisa de ajuste dependendo dos seus dados)
-        df_ponto['Ano'] = df_ponto[coluna_data].astype(int)
-    else:
-        print(f"Formato da coluna '{coluna_data}' não reconhecido.")
-        exit()
-
-    # Agrupar por ano e calcular a média do resultado (você pode usar outra função como max(), min(), etc.)
-    resultados_por_ano = df_ponto.groupby('Ano')[coluna_resultado].mean()
-
-    # Plotar o gráfico
-    plt.figure(figsize=(10, 6))
-    plt.plot(resultados_por_ano.index, resultados_por_ano.values, marker='o', linestyle='-')
-    plt.title(f'Variação da Análise para {ponto_de_interesse} ao Longo dos Anos')
-    plt.xlabel('Ano')
-    plt.ylabel('Valor da Análise (Média)')
-    plt.grid(True)
-    plt.xticks(resultados_por_ano.index.astype(int)) # Mostrar todos os anos no eixo x
-    plt.tight_layout()
-    plt.show()
-
-except FileNotFoundError:
-    print(f"Erro: O arquivo '{dataDir}' não foi encontrado.")
-except Exception as e:
-    print(f"Ocorreu um erro ao processar o arquivo: {e}")
+#print("\nMínimos por ano e estado:")
+#print(minimos_por_estado)
 
 
