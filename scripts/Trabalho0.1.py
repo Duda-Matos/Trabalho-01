@@ -10,6 +10,9 @@ import os
 import pandas as pd
 import numpy as np
 import folium
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+import geopandas as geop
 #%% separando cada unidade 
 
 dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\IQA_até_2021.csv"
@@ -51,10 +54,11 @@ except Exception as e:
 df = df.rename(columns={'latitude': 'longitude', 'longitude': 'latitude'})
 print(df.columns)
 
-#%%
+#%% criando mapas para cada UF
+
 coluna_latitude = 'latitude'
 coluna_longitude = 'longitude'
-
+#%%
 outputDir = "C:/Users/dudad/Documents/GitHub/ENS5132/Trabalho/outputs/mapas_por_uf" # Diretório para salvar os mapas HTML
 
 # Criar o diretório de saída se não existir
@@ -99,3 +103,53 @@ except FileNotFoundError:
     print(f"Erro: O arquivo '{dataDir}' não foi encontrado.")
 except Exception as e:
     print(f"Ocorreu um erro ao processar o arquivo: {e}")
+    #%% adicionando u shapifile do brasil
+   # Caminho para o arquivo shapefile dos estados
+path_estados = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\uf brasil\BR_UF_2023.shp"  # Substitua pelo caminho real
+
+# Ler o shapefile
+estados = geop.read_file(path_estados)
+
+# Exibir as primeiras linhas do GeoDataFrame para entender sua estrutura
+print(estados.head())
+print(estados.crs) # Verificar o sistema de coordenadas 
+    
+    #%%
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+
+# Plotar os estados
+estados.plot(ax=ax, color='lightgray', edgecolor='black')
+
+# Plotar seus dados de pontos no mesmo eixo
+gdf.plot(ax=ax, marker='o', color='red', markersize=15)
+
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+ax.set_title("Mapa dos Pontos com Delimitação dos Estados")
+
+plt.show()
+# plt.savefig('mapa_com_estados.png')
+gdf = gdf.to_crs(estados.crs)
+    
+    #%%Fazendo um mapa com todos os pontos
+    
+    
+
+geometry = [Point(xy) for xy in zip(df_com_coordenadas[coluna_longitude], df_com_coordenadas[coluna_latitude])]
+
+df_com_coordenadas = df.dropna(subset=[coluna_latitude, coluna_longitude])
+    # Criar um GeoDataFrame
+gdf = geop.GeoDataFrame(df_com_coordenadas, geometry=geometry, crs="EPSG:4326") # CRS é o sistema de coordenadas (WGS 84)
+
+    # Criar o mapa
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+gdf.plot(ax=ax, marker='o', color='red', markersize=15)
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+ax.set_title("Mapa dos Pontos")
+plt.show()
+
+    # Para salvar o mapa como uma imagem:
+    # plt.savefig('mapa_estatico.png')
+
+    
