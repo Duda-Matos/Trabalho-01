@@ -2,7 +2,7 @@
 """
 Created on Tue Apr 15 15:50:14 2025
 
-@author: dudad
+@author: duda matos
 """
 
 #%%
@@ -61,13 +61,13 @@ except Exception as e:
 
 coluna_latitude = 'latitude'
 coluna_longitude = 'longitude'
-#%%
+#%% direcionar diretório de saida
 outputDir = "C:/Users/dudad/Documents/GitHub/ENS5132/Trabalho/outputs/mapas_por_uf" # Diretório para salvar os mapas HTML
 
 # Criar o diretório de saída se não existir
-if not os.path.exists(outputDir):
-    os.makedirs(outputDir)
-
+#if not os.path.exists(outputDir):
+#    os.makedirs(outputDir)
+#%%
 try:
     # Filtrar linhas com dados de latitude e longitude válidos
     df_com_coordenadas = df.dropna(subset=[coluna_latitude, coluna_longitude, coluna_uf])
@@ -124,7 +124,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 estados.plot(ax=ax, color='lightgray', edgecolor='black')
 
 # Plotar seus dados de pontos no mesmo eixo
-gdf.plot(ax=ax, marker='o', color='red', markersize=15)
+gdf.plot(ax=ax, marker='o', color='red', markersize=10)
 
 ax.set_xlabel("Longitude")
 ax.set_ylabel("Latitude")
@@ -146,7 +146,7 @@ gdf = geop.GeoDataFrame(df_com_coordenadas, geometry=geometry, crs="EPSG:4326") 
 
     # Criar o mapa
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-gdf.plot(ax=ax, marker='o', color='red', markersize=15)
+gdf.plot(ax=ax, marker='o', color='red', markersize=10)
 ax.set_xlabel("Longitude")
 ax.set_ylabel("Latitude")
 ax.set_title("Mapa dos Pontos")
@@ -155,23 +155,3 @@ plt.show()
     # Para salvar o mapa como uma imagem:
     # plt.savefig('mapa_estatico.png')
 #%%     ATÉ AQUI TA LINDO MAS DAQUI PRA BAIXO AINDA NÃO TENTEI
-
-coluna_analise = 'MAX_2019'  # Substitua pelo nome real da sua coluna de análise
-
-# Agrupe por Unidade Federativa ('UF') e por ano ('ANO')
-#grouped = df.groupby(['UF'])
-
-# Calcule a máxima da coluna de análise para cada grupo
-maximos_por_estado = coluna_analise.max()
-
-# Calcule a mínima da coluna de análise para cada grupo
-#minimos_por_estado = grouped[coluna_analise].min()
-
-# Exiba os resultados
-print("Máximos por ano e estado:")
-print(maximos_por_estado)
-
-#print("\nMínimos por ano e estado:")
-#print(minimos_por_estado)
-
-
