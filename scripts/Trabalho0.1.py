@@ -27,6 +27,7 @@ print(df.columns)
 
 #%%separando cada unidade 
 coluna_uf = 'SGUF'
+
 try:
     df = pd.read_csv(dataDir, encoding='latin1')
     print(f"Arquivo '{dataDir}' lido com sucesso. DataFrame tem {len(df)} linhas.")
@@ -64,7 +65,7 @@ except Exception as e:
 coluna_latitude = 'latitude'
 coluna_longitude = 'longitude'
 #%% direcionar diretório de saida
-outputDir = "C:/Users/dudad/Documents/GitHub/ENS5132/Trabalho/outputs/mapas_por_uf" # Diretório para salvar os mapas HTML
+outputDir = "C:/Users/dudad/Documents/GitHub/ENS5132/Trabalho/outputs/mapas_por_uf_" # Diretório para salvar os mapas HTML
 
 # Criar o diretório de saída se não existir
 #if not os.path.exists(outputDir):
@@ -138,8 +139,23 @@ gdf = gdf.to_crs(estados.crs)
     
     #%%Fazendo um mapa com todos os pontos
     
-    
+df_com_coordenadas = df.dropna(subset=[coluna_latitude, coluna_longitude]).copy()
+geometry = [Point(xy) for xy in zip(df_com_coordenadas[coluna_longitude], df_com_coordenadas[coluna_latitude])]
+gdf = geop.GeoDataFrame(df_com_coordenadas, geometry=geometry, crs="EPSG:4326")
 
+# Converter o CRS do gdf para o mesmo dos estados (se necessário)
+gdf = gdf.to_crs(estados.crs)
+
+# 2. Plotar o mapa com os estados e seus pontos
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+estados.plot(ax=ax, color='lightgreen', edgecolor='black')
+gdf.plot(ax=ax, marker='o', color='blue', markersize=2)
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+ax.set_title("Pontos de Análise de IQA do Brasil")
+plt.show()
+# plt.savefig('mapa_com_estados.png')    
+#%%
 geometry = [Point(xy) for xy in zip(df_com_coordenadas[coluna_longitude], df_com_coordenadas[coluna_latitude])]
 
 df_com_coordenadas = df.dropna(subset=[coluna_latitude, coluna_longitude])
