@@ -120,7 +120,7 @@ estados = geop.read_file(path_estados)
 print(estados.head())
 print(estados.crs) # Verificar o sistema de coordenadas 
     
-    #%%
+    #%% essa parte ta dando erro desconsiderar
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
 # Plotar os estados
@@ -174,6 +174,21 @@ plt.show()
     # plt.savefig('mapa_estatico.png')
 #%%     ATÉ AQUI TA LINDO MAS DAQUI PRA BAIXO AINDA NÃO TENTEI
 
+m = folium.Map(location=[centro_lat, centro_lon], zoom_start=4) # Ajuste o zoom_start conforme necessário
+
+# 5. Adicionar marcadores para cada ponto no mapa
+for idx, row in gdf.iterrows():
+    folium.Marker([row.geometry.y, row.geometry.x]).add_to(m)
+
+output_filename = ('mapa_interativo_todos_pontos.html')
+output_path = os.path.join(outputDir, output_filename)
+
+# 9. Salvar o mapa interativo no caminho especificado
+m.save(output_path)
+# 6. Salvar o mapa interativo como um arquivo HTML
+
+
+print("Mapa interativo com todos os pontos salvo como 'mapa_interativo_todos_pontos.html'")
 #%%  GRÁFICO DE DISPERSÃO TORCENDO PRA DAR BOM  
 # ta teve q tratar mais os dados do que eu imaginei mas bora lá
 uf_sele = 'SP'
