@@ -13,6 +13,7 @@ import folium
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 import geopandas as geop
+import re 
 #%% Lendo o arquivo
 
 dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\IQA_até_2021.csv"
@@ -45,8 +46,8 @@ try:
 
   
     print(f"\nO DataFrame foi separado por {len(ufs_unicas)} Unidades Federativas:")
-    for uf, df_uf in dataframes_por_uf.items():
-        print(f"UF: {uf} tem {len(df_uf)} linhas.")
+    #for uf, df_uf in dataframes_por_uf.items():
+        #print(f"UF: {uf} tem {len(df_uf)} linhas.")
 
 except FileNotFoundError:
     print(f"Erro: O arquivo '{dataDir}' não foi encontrado.")
@@ -155,3 +156,162 @@ plt.show()
     # Para salvar o mapa como uma imagem:
     # plt.savefig('mapa_estatico.png')
 #%%     ATÉ AQUI TA LINDO MAS DAQUI PRA BAIXO AINDA NÃO TENTEI
+
+#%%  GRÁFICO DE DISPERSÃO TORCENDO PRA DAR BOM  
+# ta teve q tratar mais os dados do que eu imaginei mas bora lá
+uf_sele = 'SC'
+
+# Substituir espaços vazios por nan em todas as colunas 
+
+prefixos = ['MED_','MIN_','MAX_']
+
+anos = range(1978, 2020)
+colunas_anos = [prefixo + str(ano) for prefixo in prefixos for ano in anos]
+ 
+
+#df[colunas_anos] = df[colunas_anos].apply(lambda col: col.str.strip()).replace('', np.nan)
+
+
+
+#%%    Desconsidera esse e vai pro proximo la na linha 235
+df_uf = df[df['SGUF'] == uf_sele]
+
+def criar_grafico_dispersao(dataframe, valor):
+    """Cria um gráfico de dispersão para um tipo de valor específico."""
+    anos = [str(ano) for ano in range(1978, 2020)]
+    valores = dataframe[anos].values.flatten()
+    anos_repetidos = [ano for ano in range(1978, 2020)] * len(dataframe)
+    plt.figure(figsize=(12, 6))
+    plt.scatter(anos_repetidos, valores)
+    plt.title(f'Gráfico de Dispersão - {valor} - {uf_sele}')
+    plt.xlabel('Ano')
+    plt.ylabel(valor)
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))  # Mostrar ticks a cada 5 anos
+    plt.tight_layout()
+    plt.show()
+
+
+tipos_de_valor = ['medio', 'maximo', 'minimo']
+
+for index, row in df_uf.iterrows():
+    nome_ponto = row['CORPODAGUA']  
+    plt.figure(figsize=(15, 5))
+
+    plt.subplot(1, 3, 1)
+    anos = [int(ano) for ano in range(1978, 2020)]
+    valores_medio = [row[str(ano)] for ano in anos]
+    plt.scatter(anos, valores_medio)
+    plt.title(f'{nome_ponto} - Médio')
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Médio')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    plt.subplot(1, 3, 2)
+    valores_maximo = [row[str(ano)] for ano in anos]
+    plt.scatter(anos, valores_maximo)
+    plt.title(f'{nome_ponto} - Máximo')
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Máximo')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    plt.subplot(1, 3, 3)
+    valores_minimo = [row[str(ano)] for ano in anos]
+    plt.scatter(anos, valores_minimo)
+    plt.title(f'{nome_ponto} - Mínimo')
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Mínimo')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    plt.tight_layout()
+    plt.show()
+#%%
+
+pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\graficos_SC"
+
+#%%
+pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\graficos_SC"
+
+for index, row in df_uf.iterrows():
+    nome_ponto_original = str(row['CORPODAGUA'])  # Converter para string explicitamente
+    nome_ponto_limpo = sanitize_filename(nome_ponto_original)
+
+def sanitize_filename(filename):
+    """Remove caracteres especiais e espaços de um nome de arquivo."""
+    # Substitui espaços por underscores
+    sanitized_name = filename.replace(" ", "_")
+    # Remove caracteres que não são alfanuméricos, underscores ou pontos
+    sanitized_name = re.sub(r'[^a-zA-Z0-9_.]', '', sanitized_name)
+    return sanitized_name
+
+for index, row in df_uf.iterrows():
+    nome_ponto_original = row['CORPODAGUA']
+    nome_ponto_limpo = sanitize_filename(nome_ponto_original)
+    anos_str = [str(ano) for ano in range(1978, 2020)]
+    anos_plot = [int(ano) for ano in anos_str]
+
+    plt.figure(figsize=(15, 5))
+
+    # Gráfico de Médio
+    plt.subplot(1, 3, 1)
+    colunas_medio = ['MED_' + ano for ano in anos_str]
+    valores_medio = row[colunas_medio].tolist()
+    plt.scatter(anos_plot, valores_medio)
+    plt.title(f'{nome_ponto_original} - Médio') # Mantém o título original
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Médio')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    # Salvar o gráfico de médio com nome de arquivo limpo
+    nome_arquivo_medio = os.path.join(pasta_graficos, f'{nome_ponto_limpo}_medio.png')
+    plt.savefig(nome_arquivo_medio)
+    plt.close()
+
+    plt.figure(figsize=(15, 5))
+
+    # Gráfico de Máximo
+    plt.subplot(1, 3, 1)
+    colunas_maximo = ['MAX_' + ano for ano in anos_str]
+    valores_maximo = row[colunas_maximo].tolist()
+    plt.scatter(anos_plot, valores_maximo)
+    plt.title(f'{nome_ponto_original} - Máximo')
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Máximo')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    # Salvar o gráfico de máximo com nome de arquivo limpo
+    nome_arquivo_maximo = os.path.join(pasta_graficos, f'{nome_ponto_limpo}_maximo.png')
+    plt.savefig(nome_arquivo_maximo)
+    plt.close()
+
+    plt.figure(figsize=(15, 5))
+
+    # Gráfico de Mínimo
+    plt.subplot(1, 3, 1)
+    colunas_minimo = ['MIN_' + ano for ano in anos_str]
+    valores_minimo = row[colunas_minimo].tolist()
+    plt.scatter(anos_plot, valores_minimo)
+    plt.title(f'{nome_ponto_original} - Mínimo')
+    plt.xlabel('Ano')
+    plt.ylabel('Valor Mínimo')
+    plt.grid(True)
+    plt.xticks(range(1978, 2020, 5))
+
+    # Salvar o gráfico de mínimo com nome de arquivo limpo
+    nome_arquivo_minimo = os.path.join(pasta_graficos, f'{nome_ponto_limpo}_minimo.png')
+    plt.savefig(nome_arquivo_minimo)
+    plt.close()
+
+print(f"Gráficos salvos na pasta '{pasta_graficos}'")
+
+
+
+
+
+
+
