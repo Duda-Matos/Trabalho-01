@@ -15,11 +15,13 @@ import geopandas as geop
 import re 
 import matplotlib.ticker as ticker
 #%%
-dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\IQA_até_2021.csv"
+dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\ODSerieHistorica.csv"
 
+parametro = 'Oxigenio'
+#%%
 df = pd.read_csv(dataDir, encoding='latin1')
 
-coluna_uf = 'SGUF'
+coluna_uf = 'sguf'
 
 uf_sele = 'SP'
 
@@ -54,19 +56,19 @@ print(df_uf['CORPODAGUA'].apply(type).unique())
 print(df_uf.iloc[20:66]['CORPODAGUA'])
 
 #%%
-pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\graficos_SP"
+pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\analisedeParametros"
 
 #definir quais corpos dagua
 lista_pontos =[ 
     'ReservatÃ³rio do Rio Grande',
-    'Rio CubatÃ£o',
+    'Rio CubatÃ£o', 'Rio Embu-Mirim', 'Rio Pinheiros'
 ]
 #%%
 anos_analise = range(1979, 2022)
 anos_str = [str(ano) for ano in anos_analise]
 anos_plot = list(anos_analise)
 anos_rotulos = list(range(min(anos_analise), max(anos_analise) + 1, 10))
-
+#%%
 for corpo_dagua in lista_pontos:
     # Filtra o DataFrame df_uf para incluir apenas o CORPODAGUA atual
     df_uf_filtrado = df_uf[df_uf['CORPODAGUA'] == corpo_dagua]
@@ -78,13 +80,14 @@ for corpo_dagua in lista_pontos:
             nome_ponto_limpo = sanitize_filename(nome_ponto_original)
 
             plt.figure(figsize=(18, 6))  # Uma única figura para os três subplots
-
+            plt.suptitle(f'Variação Anual - {parametro} - {nome_ponto_limpo}', fontsize=16, y=0.98)
+            
             # Gráfico de Médio (subplot 1)
             plt.subplot(1, 3, 1)
             colunas_medio = ['MED_' + ano for ano in anos_str]
             valores_medio = row[colunas_medio].tolist()
             plt.scatter(anos_plot, valores_medio)
-            plt.title(f'{nome_ponto_original} - Médio')
+            plt.title(' Médio')
             plt.xlabel('Ano')
             plt.ylabel('Valor Médio')
             ax = plt.gca()
@@ -100,7 +103,7 @@ for corpo_dagua in lista_pontos:
             colunas_maximo = ['MAX_' + ano for ano in anos_str]
             valores_maximo = row[colunas_maximo].tolist()
             plt.scatter(anos_plot, valores_maximo)
-            plt.title(f'{nome_ponto_original} - Máximo')
+            plt.title( 'Máximo')#{nome_ponto_original}
             plt.xlabel('Ano')
             plt.ylabel('Valor Máximo')
             ax = plt.gca()
@@ -116,7 +119,7 @@ for corpo_dagua in lista_pontos:
             colunas_minimo = ['MIN_' + ano for ano in anos_str]
             valores_minimo = row[colunas_minimo].tolist()
             plt.scatter(anos_plot, valores_minimo)
-            plt.title(f'{nome_ponto_original} - Mínimo')
+            plt.title(' Mínimo') 
             plt.xlabel('Ano')
             plt.ylabel('Valor Mínimo')
             ax = plt.gca()
@@ -128,7 +131,7 @@ for corpo_dagua in lista_pontos:
             plt.xlim(min(anos_plot) - 1, max(anos_plot) + 1)
 
             plt.tight_layout()  # Ajusta o espaçamento entre os subplots
-            nome_arquivo = os.path.join(pasta_graficos, f'{nome_ponto_limpo}_tres_tipos.png')
+            nome_arquivo = os.path.join(pasta_graficos, f'{parametro}_{nome_ponto_limpo}.png')
             plt.savefig(nome_arquivo)
             plt.close()
 
