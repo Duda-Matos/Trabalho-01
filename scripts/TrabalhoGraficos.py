@@ -4,7 +4,7 @@ Created on Sun Apr 27 17:02:59 2025
 
 @author: dudad
 """
-#%%
+#%% importando 
 import os
 import pandas as pd
 import numpy as np
@@ -15,9 +15,9 @@ import geopandas as geop
 import re 
 import matplotlib.ticker as ticker
 #%%
-dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\ODSerieHistorica.csv"
+dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\IQA_até_2021.csv"
 
-parametro = 'Oxigenio'
+parametro = 'IQA'
 #%%
 df = pd.read_csv(dataDir, encoding='latin1')
 
