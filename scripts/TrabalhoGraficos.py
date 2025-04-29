@@ -15,30 +15,34 @@ import geopandas as geop
 import re 
 import matplotlib.ticker as ticker
 #%%
-dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\IQA_até_2021.csv"
+dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\TurbidezSerieHistotica.csv"
 
-parametro = 'IQA'
+#%% ver em ia como em vez de usar um arquivo tirar as informações de turb e fosforo de dois diferentes e 
+#utilizar eles juntos ou separados para retirar as informações dos pontos escolhidos 
+dataTurb = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\TurbidezSerieHistotica.csv"
+dataFos = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\FosforoTotalSerieHistorica.csv"
+parametro = 'Relação Fosforo Turbidez'
 #%%
 df = pd.read_csv(dataDir, encoding='latin1')
 
-coluna_uf = 'sguf'
+coluna_uf = 'SGUF'
 
-uf_sele = 'SP'
+uf_sele = 'MT'
 
 # Substituir espaços vazios por nan em todas as colunas 
+prefixos=['MED_','MIN_', 'MAX_']
+#prefixos = ['med_','min_','max_']
 
-prefixos = ['MED_','MIN_','MAX_']
-
-anos = range(1978, 2020)
+anos = range(2003, 2020)
 colunas_anos = [prefixo + str(ano) for prefixo in prefixos for ano in anos]
 
-
+#cdestacao
 
 df_uf = df[df['SGUF'] == uf_sele]
 #%%
 
 
-df_uf = df_uf.dropna(subset=['CORPODAGUA'])
+df_uf = df_uf.dropna(subset=['CDESTACAO'])
 print(f"Linhas com NaN na coluna 'CORPODAGUA' foram excluídas. Novo tamanho do DataFrame: {len(df_uf)}")
 
 
@@ -51,27 +55,31 @@ def sanitize_filename(filename):
     return sanitized_name
 
 
-print(df_uf['CORPODAGUA'].apply(type).unique())
+print(df_uf['CDESTACAO'].apply(type).unique())
 #%%
-print(df_uf.iloc[20:66]['CORPODAGUA'])
+#print(df_uf.iloc[20:66]['corpodagua'])
+
+print(df.columns)
 
 #%%
-pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\analisedeParametros"
+pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\Fosforo"
 
 #definir quais corpos dagua
-lista_pontos =[ 
-    'ReservatÃ³rio do Rio Grande',
-    'Rio CubatÃ£o', 'Rio Embu-Mirim', 'Rio Pinheiros'
-]
+lista_pontos =[
+
+    'CBA671', 'JAU389']
+
 #%%
-anos_analise = range(1979, 2022)
+anos_analise = range(2003, 2021)
 anos_str = [str(ano) for ano in anos_analise]
 anos_plot = list(anos_analise)
-anos_rotulos = list(range(min(anos_analise), max(anos_analise) + 1, 10))
+valores_min = []
+#anos_rotulos = list(range(min(anos_analise), max(anos_analise) + 1, 10))
+
 #%%
 for corpo_dagua in lista_pontos:
     # Filtra o DataFrame df_uf para incluir apenas o CORPODAGUA atual
-    df_uf_filtrado = df_uf[df_uf['CORPODAGUA'] == corpo_dagua]
+    df_uf_filtrado = df_uf[df_uf['CDESTACAO'] == corpo_dagua]
 
     # Verifica se o corpo d'água foi encontrado no DataFrame
     if not df_uf_filtrado.empty:
@@ -86,48 +94,49 @@ for corpo_dagua in lista_pontos:
             plt.subplot(1, 3, 1)
             colunas_medio = ['MED_' + ano for ano in anos_str]
             valores_medio = row[colunas_medio].tolist()
-            plt.scatter(anos_plot, valores_medio)
+            plt.plot(anos_plot, valores_medio)
             plt.title(' Médio')
             plt.xlabel('Ano')
             plt.ylabel('Valor Médio')
             ax = plt.gca()
             ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
-            ax.xaxis.grid(True, which='major', linestyle='-', alpha=0.5)
-            ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
-            ax.yaxis.grid(True, which='major', linestyle='-', alpha=0.5)
-            plt.xticks(anos_rotulos, rotation=45, ha='right')
+            ax.xaxis.grid(True)#, which='major', linestyle='-', alpha=0.5)
+            ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
+            ax.yaxis.grid(True)#, which='major', linestyle='-', alpha=0.5)
+            plt.xticks(anos_plot, rotation=45, ha='right')
             plt.xlim(min(anos_plot) - 1, max(anos_plot) + 1)
+            
 
             # Gráfico de Máximo (subplot 2)
             plt.subplot(1, 3, 2)
             colunas_maximo = ['MAX_' + ano for ano in anos_str]
             valores_maximo = row[colunas_maximo].tolist()
-            plt.scatter(anos_plot, valores_maximo)
+            plt.plot(anos_plot, valores_maximo)
             plt.title( 'Máximo')#{nome_ponto_original}
             plt.xlabel('Ano')
             plt.ylabel('Valor Máximo')
             ax = plt.gca()
             ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
-            ax.xaxis.grid(True, which='major', linestyle='-', alpha=0.5)
-            ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
-            ax.yaxis.grid(True, which='major', linestyle='-', alpha=0.5)
-            plt.xticks(anos_rotulos, rotation=45, ha='right')
+            ax.xaxis.grid(True)
+            ax.yaxis.set_major_locator(ticker.MultipleLocator(10))
+            ax.yaxis.grid(True)
+            plt.xticks(anos_plot, rotation=45, ha='right')
             plt.xlim(min(anos_plot) - 1, max(anos_plot) + 1)
-
+            
             # Gráfico de Mínimo (subplot 3)
             plt.subplot(1, 3, 3)
             colunas_minimo = ['MIN_' + ano for ano in anos_str]
             valores_minimo = row[colunas_minimo].tolist()
-            plt.scatter(anos_plot, valores_minimo)
+            plt.plot(anos_plot, valores_minimo)
             plt.title(' Mínimo') 
             plt.xlabel('Ano')
             plt.ylabel('Valor Mínimo')
             ax = plt.gca()
             ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
-            ax.xaxis.grid(True, which='major', linestyle='-', alpha=0.5)
+            ax.xaxis.grid(True)#, which='major', linestyle='-', alpha=0.5)
             ax.yaxis.set_major_locator(ticker.MultipleLocator(5))
-            ax.yaxis.grid(True, which='major', linestyle='-', alpha=0.5)
-            plt.xticks(anos_rotulos, rotation=45, ha='right')
+            ax.yaxis.grid(True)#, which='major', linestyle='-', alpha=0.5)
+            plt.xticks(anos_plot, rotation=45, ha='right')
             plt.xlim(min(anos_plot) - 1, max(anos_plot) + 1)
 
             plt.tight_layout()  # Ajusta o espaçamento entre os subplots
