@@ -7,21 +7,21 @@ Created on Sun Apr 27 17:02:59 2025
 #%% importando 
 import os
 import pandas as pd
-import numpy as np
-import folium
-from shapely.geometry import Point
+#import numpy as np
+#import folium
+#from shapely.geometry import Point
 import matplotlib.pyplot as plt
-import geopandas as geop
+#import geopandas as geop
 import re 
 import matplotlib.ticker as ticker
 #%%
-dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\TurbidezSerieHistotica.csv"
+dataDir = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\ODSerieHistorica.csv"
 
 #%% ver em ia como em vez de usar um arquivo tirar as informações de turb e fosforo de dois diferentes e 
 #utilizar eles juntos ou separados para retirar as informações dos pontos escolhidos 
 dataTurb = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\TurbidezSerieHistotica.csv"
 dataFos = r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\inputs\FosforoTotalSerieHistorica.csv"
-parametro = 'Relação Fosforo Turbidez'
+parametro = 'Oxigenio_Dissolvido'
 #%%
 df = pd.read_csv(dataDir, encoding='latin1')
 
@@ -62,7 +62,7 @@ print(df_uf['CDESTACAO'].apply(type).unique())
 print(df.columns)
 
 #%%
-pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\Fosforo"
+pasta_graficos =  r"C:\Users\dudad\Documents\GitHub\ENS5132\Trabalho\outputs\analisedeParametros"
 
 #definir quais corpos dagua
 lista_pontos =[
